@@ -1,6 +1,8 @@
-#' Gets iteration tree for a particular TFS project
+#' Get Iteration Tree
 #'
-#' @param None.
+#' Get iteration tree for a particular TFS project.
+#'
+#' @param None
 #'
 #' @return \code{api_get} class of iterations
 get_iteration_tree <- function() {
@@ -11,9 +13,11 @@ get_iteration_tree <- function() {
   return(releases)
 }
 
+#' Get Current Release
+#'
 #' Computes the current release based on today's date.
 #'
-#' @param None.
+#' @param None
 #'
 #' @return A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases. Current minor release will be \code{NULL} if there are no minor releases defined.
 get_current_release <- function() {
@@ -62,19 +66,41 @@ get_current_release <- function() {
     return(list(current_minor_release = current_minor_release, current_major_release = current_major_release))
 }
 
-
-get_release_sprints <- function(release) {
+#' Get Release Sprints
+#'
+#' Get a list of sprints in a particular release/iteration.
+#'
+#' @param release_name Name of the release/iteration as defined in TFS
+#' @return A list of sprint iterations
+#' @examples
+#' get_release_sprints('Version 2.0')
+get_release_sprints <- function(release_name) {
     # Returns a list of sprints in the release.  Args: release: Release list.  Returns: sprints$children: List of child
     # sprints in the release.
     if (tfs_collection == "" || tfs_project == "")
         stop("TFS Collection or Project is not defined", call. = FALSE)
-    url <- paste("/tfs/", tfs_collection, "/", tfs_project, "/_apis/wit/classificationNodes/iterations/", URLencode(release$name),
+    url <- paste("/tfs/", tfs_collection, "/", tfs_project, "/_apis/wit/classificationNodes/iterations/", URLencode(release_name),
         "?$depth=1", sep = "")
     sprints <- api_get(url)
     return(sprints$children)
+
 }
 
-
+#' Get Release Work Item IDs
+#'
+#' Get a list of work item IDs for a particular release. Currently retrieves work items where:
+#' \itemize{
+#'    \item Area path is under the team's default area path
+#'    \item Work Item Type is Product Backlog Item, Defect or Work Order
+#'    \item State is not equal to Removed
+#' }
+#' @param iteration_ids A comma-separated list of iteration IDs. Use \code{get_iteration_tree} to acquire a list of iterations.
+#' @param date The TFS API has the ability to fetch data as of a certain date. Passing a date object will return a list of work item IDs
+#' whose iteration path is under \code{iteration_ids} as of this date. Defaults to today's date.
+#' @return \code{api_post} class of work item IDs
+#' @examples
+#' iteration_ids <- '50, 51, 52'
+#' get_release_wi_ids(iteration_ids)
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
     default_area_path <- rtfs::get_default_area_path()
     # Returns list of work item IDs.
@@ -87,17 +113,39 @@ get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
     return(work_items)
 }
 
-get_release_wis <- function(work.item.id.list, date = format(Sys.Date())) {
-    remainder <- work.item.id.list
+#' Get Release Work Items
+#'
+#' Get a list of work items for a particular release. Currently uses the team's default area path.
+#'
+#' @param wi_id_list A comma-separated list of work item IDs. Use \code{\link{get_release_wi_ids}} to acquire a list of work items.
+#' @param date The TFS API has the ability to fetch data as of a certain date. Passing a date object will return a list of work items
+#' as of this date. Defaults to today's date.
+#' @return \code{api_post} class of work items
+#' @examples
+#' wi_id_list <- '50000, 51000, 52000'
+#' get_release_wis(wi_id_list)
+get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
+    remainder <- wi_id_list
 
     while (length(remainder) > 0) {
-        w <- head(remainder, 200)
+        first_200 <- head(remainder, 200)
         remainder <- remainder[-c(1:200)]
 
-        list <- paste(as.character(w), collapse = ",")
-        return.fields <- "System.Id, \n                    System.Title, \n                    System.WorkItemType, \n                    System.IterationPath, \n                    System.IterationId, \n                    System.State,\n                    System.CreatedDate,\n                    Microsoft.VSTS.Scheduling.Effort,\n                    Microsoft.VSTS.Common.Severity,\n                    TR.Elite.BugType,\n                    Microsoft.VSTS.Common.ClosedDate,\n                    System.AreaPath"
-        url <- paste("/tfs/", tfs_collection, "/_apis/wit/workitems?ids=", list, "&asOf=", date, "&fields=", gsub("[\n ]",
-            "", return.fields), "&api-version=1.0", sep = "")
+        id_list <- paste(as.character(first_200), collapse = ",")
+        return_fields <- paste("System.Id",
+                               "System.Title",
+                               "System.WorkItemType",
+                               "System.IterationPath",
+                               "System.IterationId",
+                               "System.State",
+                               "System.CreatedDate",
+                               "Microsoft.VSTS.Scheduling.Effort",
+                               "Microsoft.VSTS.Common.Severity",
+                               "TR.Elite.BugType",
+                               "Microsoft.VSTS.Common.ClosedDate",
+                               "System.AreaPath",
+                               sep = ",")
+        url <- paste("/tfs/", tfs_collection, "/_apis/wit/workitems?ids=", id_list, "&asOf=", date, "&fields=", return_fields, "&api-version=1.0", sep = "")
         if (!exists("work_items")) {
             work_items <- api_get(url)$content$value$fields
         } else {
@@ -108,6 +156,17 @@ get_release_wis <- function(work.item.id.list, date = format(Sys.Date())) {
     return(work_items)
 }
 
+#' Get Historical Backlog Size
+#'
+#' Get the total backlog size at different points in time. Only considers work items under the team's default area path.
+#'
+#' @param iteration_ids A comma-separated list of iteration IDs. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.
+#' @param dates A list of \code{date} objects representing the points in time to calculate the backlog size.
+#' @return Dataframe with two columns: \code{TOTAL_RELEASE_POINTS} and \code{AS_OF} (indicating the date)
+#' @examples
+#' iteration_ids <- '50, 51, 52'
+#' dates <- list(Sys.Date(), Sys.Date() - 14, Sys.Date() - 28)
+#' get_backlog_history(iteration_ids, dates)
 get_backlog_history <- function(iteration_ids, dates) {
     cat("Dates:", dates)
     backlog_history <- data.frame(TOTAL_RELEASE_POINTS = double(), AS_OF = character())

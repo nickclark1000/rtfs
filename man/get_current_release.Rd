@@ -2,12 +2,12 @@
 % Please edit documentation in R/release_summary.R
 \name{get_current_release}
 \alias{get_current_release}
-\title{Computes the current release based on today's date.}
+\title{Get Current Release}
 \usage{
 get_current_release()
 }
 \arguments{
-\item{None.}{}
+\item{None}{}
 }
 \value{
 A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases. Current minor release will be \code{NULL} if there are no minor releases defined.

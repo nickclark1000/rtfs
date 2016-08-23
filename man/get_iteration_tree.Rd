@@ -2,17 +2,17 @@
 % Please edit documentation in R/release_summary.R
 \name{get_iteration_tree}
 \alias{get_iteration_tree}
-\title{Gets iteration tree for a particular TFS project}
+\title{Get Iteration Tree}
 \usage{
 get_iteration_tree()
 }
 \arguments{
-\item{None.}{}
+\item{None}{}
 }
 \value{
 \code{api_get} class of iterations
 }
 \description{
-Gets iteration tree for a particular TFS project
+Get iteration tree for a particular TFS project.
 }
 
