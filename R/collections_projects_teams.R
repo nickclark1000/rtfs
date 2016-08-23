@@ -17,6 +17,6 @@ get_teams <- function(tfs_collection, tfs_project) {
 get_default_area_path <- function() {
     url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/", URLencode(tfs_team), "/_apis/Work/TeamSettings/TeamFieldValues",
         sep = "")
-    default_area_path <- api_get(url)$defaultValue
+    default_area_path <- api_get(url)$content$defaultValue
     return(default_area_path)
 }

@@ -2,8 +2,8 @@ get_current_release <- function() {
     # Computes the current release based on today's date.  Args: None Returns: current_release: The current release as a list.
     if (tfs_collection == "" || tfs_project == "")
         stop("TFS Collection or Project is not defined", call. = FALSE)
-    url <- paste("/tfs/", tfs_collection, "/", tfs_project, "/_apis/wit/classificationNodes/iterations?$depth=3", sep = "")
-    releases <- api_get(url)
+    url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/classificationNodes/iterations?$depth=3", sep = "")
+    releases <- api_get(url)$content
     today <- format(Sys.Date())
 
     for (i in 1:nrow(releases$children)) {
@@ -62,12 +62,13 @@ get_release_sprints <- function(release) {
 
 
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
+    default_area_path <- rtfs::get_default_area_path()
     # Returns list of work item IDs.
     query <- paste("Select [System.Id] \n                 From WorkItems \n                 Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order') \n                 AND [System.IterationId] in (",
-        iteration_ids, ")\n                 AND [System.AreaPath] under '", team.default.area.path, "'\n                 AND [System.State] <> 'Removed'\n                 ASOF '",
+        iteration_ids, ")\n                 AND [System.AreaPath] under '", default_area_path, "'\n                 AND [System.State] <> 'Removed'\n                 ASOF '",
         date, "'", sep = "")
     cat("Request Query:", query, "\n")
-    url <- paste("/tfs/", tfs_collection, "/", tfs_project, "/_apis/wit/wiql?api-version=1.0", sep = "")
+    url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/wiql?api-version=1.0", sep = "")
     work_items <- api_post(url, query)
     return(work_items)
 }
@@ -84,9 +85,9 @@ get_release_wis <- function(work.item.id.list, date = format(Sys.Date())) {
         url <- paste("/tfs/", tfs_collection, "/_apis/wit/workitems?ids=", list, "&asOf=", date, "&fields=", gsub("[\n ]",
             "", return.fields), "&api-version=1.0", sep = "")
         if (!exists("work_items")) {
-            work_items <- api_get(url)$value$fields
+            work_items <- api_get(url)$content$value$fields
         } else {
-            work_items <- full_join(work_items, api_get(url)$value$fields)
+            work_items <- full_join(work_items, api_get(url)$content$value$fields)
         }
 
     }
@@ -97,9 +98,9 @@ get_backlog_history <- function(iteration_ids, dates) {
     cat("Dates:", dates)
     backlog_history <- data.frame(TOTAL_RELEASE_POINTS = double(), AS_OF = character())
     for (i in 1:length(dates)) {
-        work_item_ids <- get_release_wi_ids(iteration_ids, dates[i])
+        work_item_ids <- get_release_wi_ids(iteration_ids, dates[i])$content
         work_item_df <- get_release_wis(work_item_ids$workItems$id, dates[i])
-        backlog_as_of <- data.frame(TOTAL_RELEASE_POINTS = sum(work.item.df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
+        backlog_as_of <- data.frame(TOTAL_RELEASE_POINTS = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
             AS_OF = dates[i])
         backlog_history <- bind_rows(backlog_history, backlog_as_of)
     }
