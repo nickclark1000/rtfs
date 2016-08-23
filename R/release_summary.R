@@ -2,9 +2,8 @@
 #'
 #' Get iteration tree for a particular TFS project.
 #'
-#' @param None
-#'
 #' @return \code{api_get} class of iterations
+#' @export
 get_iteration_tree <- function() {
   if (tfs_collection == "" || tfs_project == "")
     stop("TFS Collection or Project is not defined", call. = FALSE)
@@ -17,9 +16,9 @@ get_iteration_tree <- function() {
 #'
 #' Computes the current release based on today's date.
 #'
-#' @param None
-#'
-#' @return A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases. Current minor release will be \code{NULL} if there are no minor releases defined.
+#' @return A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases.
+#' Current minor release will be \code{NULL} if there are no minor releases defined.
+#' @export
 get_current_release <- function() {
     releases <- get_iteration_tree()$content
     today <- format(Sys.Date())
@@ -74,6 +73,7 @@ get_current_release <- function() {
 #' @return A list of sprint iterations
 #' @examples
 #' get_release_sprints('Version 2.0')
+#' @export
 get_release_sprints <- function(release_name) {
     # Returns a list of sprints in the release.  Args: release: Release list.  Returns: sprints$children: List of child
     # sprints in the release.
@@ -101,6 +101,7 @@ get_release_sprints <- function(release_name) {
 #' @examples
 #' iteration_ids <- '50, 51, 52'
 #' get_release_wi_ids(iteration_ids)
+#' @export
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
     default_area_path <- rtfs::get_default_area_path()
     # Returns list of work item IDs.
@@ -124,6 +125,7 @@ get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
 #' @examples
 #' wi_id_list <- '50000, 51000, 52000'
 #' get_release_wis(wi_id_list)
+#' @export
 get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
     remainder <- wi_id_list
 
@@ -167,6 +169,7 @@ get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
 #' iteration_ids <- '50, 51, 52'
 #' dates <- list(Sys.Date(), Sys.Date() - 14, Sys.Date() - 28)
 #' get_backlog_history(iteration_ids, dates)
+#' @export
 get_backlog_history <- function(iteration_ids, dates) {
     cat("Dates:", dates)
     backlog_history <- data.frame(TOTAL_RELEASE_POINTS = double(), AS_OF = character())

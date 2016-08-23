@@ -6,11 +6,9 @@
 \usage{
 get_current_release()
 }
-\arguments{
-\item{None}{}
-}
 \value{
-A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases. Current minor release will be \code{NULL} if there are no minor releases defined.
+A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases.
+Current minor release will be \code{NULL} if there are no minor releases defined.
 }
 \description{
 Computes the current release based on today's date.

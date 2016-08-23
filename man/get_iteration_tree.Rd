@@ -6,9 +6,6 @@
 \usage{
 get_iteration_tree()
 }
-\arguments{
-\item{None}{}
-}
 \value{
 \code{api_get} class of iterations
 }
