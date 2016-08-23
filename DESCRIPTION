@@ -3,9 +3,11 @@ Type: Package
 Title: TFS REST API wrapper in R
 Version: 0.1.0
 Authors@R: person("Nicholas", "Clark", email = "nickclark1000@gmail.com", role = c("aut", "cre"))
-Description: TFS REST API wrapper in R for creating advanced reports and dashboards.
+Description: TFS REST API wrapper in R for creating advanced reports and
+    dashboards.
 License: What license is it under?
 LazyData: TRUE
 Imports:
     httr,
     jsonlite
+RoxygenNote: 5.0.1

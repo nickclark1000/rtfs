@@ -1,9 +1,23 @@
+#' Gets iteration tree for a particular TFS project
+#'
+#' @param None.
+#'
+#' @return \code{api_get} class of iterations
+get_iteration_tree <- function() {
+  if (tfs_collection == "" || tfs_project == "")
+    stop("TFS Collection or Project is not defined", call. = FALSE)
+  url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/classificationNodes/iterations?$depth=3", sep = "")
+  releases <- api_get(url)
+  return(releases)
+}
+
+#' Computes the current release based on today's date.
+#'
+#' @param None.
+#'
+#' @return A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases. Current minor release will be \code{NULL} if there are no minor releases defined.
 get_current_release <- function() {
-    # Computes the current release based on today's date.  Args: None Returns: current_release: The current release as a list.
-    if (tfs_collection == "" || tfs_project == "")
-        stop("TFS Collection or Project is not defined", call. = FALSE)
-    url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/classificationNodes/iterations?$depth=3", sep = "")
-    releases <- api_get(url)$content
+    releases <- get_iteration_tree()$content
     today <- format(Sys.Date())
 
     for (i in 1:nrow(releases$children)) {
@@ -33,7 +47,7 @@ get_current_release <- function() {
                     "\n")
                   if (today > grandchild$attributes$startDate && today < grandchild$attributes$finishDate) {
                     current_minor_release <<- grandchild
-                    target.release.date <<- grandchild$attributes$finishDate
+                    target_release_date <<- grandchild$attributes$finishDate
                     cat("Current Minor Release:", current_minor_release$name, "\n")
                   }
                 } else {
