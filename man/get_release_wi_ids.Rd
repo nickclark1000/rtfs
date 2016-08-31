@@ -7,9 +7,11 @@
 get_release_wi_ids(iteration_ids, date = format(Sys.Date()))
 }
 \arguments{
-\item{iteration_ids}{A comma-separated list of iteration IDs. Use \code{get_iteration_tree} to acquire a list of iterations.}
+\item{iteration_ids}{A comma-separated list of iteration IDs. Use \code{get_iteration_tree} to
+acquire a list of iterations.}
 
-\item{date}{The TFS API has the ability to fetch data as of a certain date. Passing a date object will return a list of work item IDs
+\item{date}{The TFS API has the ability to fetch data as of a certain date. Passing a date object
+will return a list of work item IDs
 whose iteration path is under \code{iteration_ids} as of this date. Defaults to today's date.}
 }
 \value{
@@ -19,8 +21,8 @@ whose iteration path is under \code{iteration_ids} as of this date. Defaults to 
 Get a list of work item IDs for a particular release. Currently retrieves work items where:
 \itemize{
    \item Area path is under the team's default area path
-   \item Work Item Type is Product Backlog Item, Defect or Work Order
-   \item State is not equal to Removed
+   \item Work Item Type is Product Backlog Item, Bug or Work Order
+   \item State is not equal to Removed or Closed
 }
 }
 \examples{

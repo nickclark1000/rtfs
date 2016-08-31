@@ -91,11 +91,13 @@ get_release_sprints <- function(release_name) {
 #' Get a list of work item IDs for a particular release. Currently retrieves work items where:
 #' \itemize{
 #'    \item Area path is under the team's default area path
-#'    \item Work Item Type is Product Backlog Item, Defect or Work Order
-#'    \item State is not equal to Removed
+#'    \item Work Item Type is Product Backlog Item, Bug or Work Order
+#'    \item State is not equal to Removed or Closed
 #' }
-#' @param iteration_ids A comma-separated list of iteration IDs. Use \code{get_iteration_tree} to acquire a list of iterations.
-#' @param date The TFS API has the ability to fetch data as of a certain date. Passing a date object will return a list of work item IDs
+#' @param iteration_ids A comma-separated list of iteration IDs. Use \code{get_iteration_tree} to
+#' acquire a list of iterations.
+#' @param date The TFS API has the ability to fetch data as of a certain date. Passing a date object
+#' will return a list of work item IDs
 #' whose iteration path is under \code{iteration_ids} as of this date. Defaults to today's date.
 #' @return \code{api_post} class of work item IDs
 #' @examples
@@ -105,9 +107,15 @@ get_release_sprints <- function(release_name) {
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
     default_area_path <- rtfs::get_default_area_path()
     # Returns list of work item IDs.
-    query <- paste("Select [System.Id] \n                 From WorkItems \n                 Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order') \n                 AND [System.IterationId] in (",
-        iteration_ids, ")\n                 AND [System.AreaPath] under '", default_area_path, "'\n                 AND [System.State] <> 'Removed'\n                 ASOF '",
-        date, "'", sep = "")
+    query <- paste("Select [System.Id]",
+                   "From WorkItems",
+                   "Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order')",
+                      "AND [System.IterationId] in (", iteration_ids, ")",
+                      "AND [System.AreaPath] under '", default_area_path, "'",
+                      "AND [System.State] <> 'Removed'",
+                      "AND [System.State] <> 'Closed'",
+                      "ASOF '", date, "'",
+                   sep = "")
     cat("Request Query:", query, "\n")
     url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/wiql?api-version=1.0", sep = "")
     work_items <- api_post(url, query)
