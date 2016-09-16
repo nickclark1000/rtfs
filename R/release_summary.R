@@ -105,15 +105,14 @@ get_release_sprints <- function(release_name) {
 #' get_release_wi_ids(iteration_ids)
 #' @export
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
-    default_area_path <- rtfs::get_default_area_path()
+    default_area_path <- rtfs::get_default_area_path()$content$defaultValue
     # Returns list of work item IDs.
-    query <- paste("Select [System.Id]",
-                   "From WorkItems",
-                   "Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order')",
-                      "AND [System.IterationId] in (", iteration_ids, ")",
-                      "AND [System.AreaPath] under '", default_area_path, "'",
-                      "AND [System.State] <> 'Removed'",
-                      "AND [System.State] <> 'Closed'",
+    query <- paste("Select [System.Id] ",
+                   "From WorkItems ",
+                   "Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order') ",
+                      "AND [System.IterationId] in (", iteration_ids, ") ",
+                      "AND [System.AreaPath] under '", default_area_path, "' ",
+                      "AND [System.State] <> 'Removed' ",
                       "ASOF '", date, "'",
                    sep = "")
     cat("Request Query:", query, "\n")
