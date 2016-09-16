@@ -154,7 +154,7 @@ get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
                                "Microsoft.VSTS.Common.ClosedDate",
                                "System.AreaPath",
                                sep = ",")
-        url <- paste("/tfs/", tfs_collection, "/_apis/wit/workitems?ids=", id_list, "&asOf=", date, "&fields=", return_fields, "&api-version=1.0", sep = "")
+        url <- paste("/tfs/", URLencode(tfs_collection), "/_apis/wit/workitems?ids=", id_list, "&asOf=", URLencode(as.character(date)), "&fields=", return_fields, "&api-version=1.0", sep = "")
         if (!exists("work_items")) {
             work_items <- api_get(url)$content$value$fields
         } else {
@@ -188,4 +188,28 @@ get_backlog_history <- function(iteration_ids, dates) {
         backlog_history <- bind_rows(backlog_history, backlog_as_of)
     }
     return(backlog_history)
+}
+
+#' Get Planned Velocity
+#'
+#' Get planned velocity for each sprint. Only considers work items under the team's default area path.
+#'
+#' @param iteration_id The iteration ID of the sprint whose planned velocity is desired.
+#' @param date_time The date and time to calculate the planned velocity.
+#' @return Dataframe with two columns: \code{PLANNED_VELOCITY} and \code{SPRINT_ITERATION_ID}
+#' @examples
+#' iteration_id <- '50'
+#' date_time <- update(as_datetime('2016-09-01T00:00:00Z'), hour = 23, minute = 59)
+#' get_planned_velocity(iteration_id, date_time)
+#' @export
+get_planned_velocity <- function(iteration_id, date_time) {
+  work_item_ids <- get_release_wi_ids(iteration_id, date_time)$content
+  if(length(work_item_ids$content$workItems)==0) {
+    #Try 24hrs later
+    work_item_ids <- get_release_wi_ids(iteration_id, date_time+86400)$content
+  }
+  work_item_df <- get_release_wis(work_item_ids$workItems$id, date_time)
+  planned_velocity <- data.frame(PLANNED_VELOCITY = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
+                                 SPRINT_ITERATION_ID = iteration_id)
+  return(planned_velocity)
 }
