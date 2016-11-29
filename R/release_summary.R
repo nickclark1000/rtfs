@@ -171,7 +171,7 @@ get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
 #'
 #' @param iteration_ids A comma-separated list of iteration IDs. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.
 #' @param dates A list of \code{date} objects representing the points in time to calculate the backlog size.
-#' @return Dataframe with two columns: \code{TOTAL_RELEASE_POINTS} and \code{AS_OF} (indicating the date)
+#' @return Dataframe with three columns: \code{TOTAL_RELEASE_POINTS}, \code{TOTAL_RELEASE_COUNT} and \code{AS_OF} (indicating the date)
 #' @examples
 #' iteration_ids <- '50, 51, 52'
 #' dates <- list(Sys.Date(), Sys.Date() - 14, Sys.Date() - 28)
@@ -184,7 +184,8 @@ get_backlog_history <- function(iteration_ids, dates) {
         work_item_ids <- get_release_wi_ids(iteration_ids, dates[i])$content
         work_item_df <- get_release_wis(work_item_ids$workItems$id, dates[i])
         backlog_as_of <- data.frame(TOTAL_RELEASE_POINTS = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
-            AS_OF = dates[i])
+                                    TOTAL_RELEASE_COUNT = nrow(work_item_df),
+                                    AS_OF = dates[i])
         backlog_history <- bind_rows(backlog_history, backlog_as_of)
     }
     return(backlog_history)
