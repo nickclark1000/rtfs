@@ -12,7 +12,7 @@
 #'
 #' @param iteration_id An iteration ID. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.
 #' @param dates A list of \code{date} objects representing the points in time to calculate the backlog size.
-#' @return Dataframe with three columns: \code{TOTAL_RELEASE_POINTS}, \code{TOTAL_RELEASE_COUNT} and \code{AS_OF} (indicating the date)
+#' @return Dataframe with five columns: \code{COMPLETED_POINTS}, \code{TOTAL_POINTS}, \code{COMPLETED_COUNT}, \code{TOTAL_COUNT} and \code{AS_OF} (indicating the date)
 #' @examples
 #' iteration_id <- '50'
 #' sprint_start_date <- '2016-01-01'
