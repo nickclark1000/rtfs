@@ -8,10 +8,11 @@
 
 #' Get Sprint History
 #'
-#' Get the cumulative completed work item points on each day of the current sprint.
+#' Get the cumulative completed work item points on each day of a sprint.
 #'
 #' @param iteration_id An iteration ID. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.
-#' @param dates A list of \code{date} objects representing the points in time to calculate the backlog size.
+#' @param sprint_start_date First day of the sprint.
+#' @param sprint_end_date Last day of the sprint.
 #' @return Dataframe with five columns: \code{COMPLETED_POINTS}, \code{TOTAL_POINTS}, \code{COMPLETED_COUNT}, \code{TOTAL_COUNT} and \code{AS_OF} (indicating the date)
 #' @examples
 #' iteration_id <- '50'
@@ -19,7 +20,7 @@
 #' sprint_end_date <- '2016-01-14'
 #' get_sprint_history(iteration_id, sprint_start_date, sprint_end_date)
 #' @export
-get_sprint_history <- function(iteration_id, sprint_start_date, sprint_end_date) {
+get_sprint_history <- function(iteration_id, sprint_start_date, sprint_end_date){
   days <- seq(from = as.Date(sprint_start_date), to = as.Date(sprint_end_date), by = 'days')
   sprint_history <- data.frame(COMPLETED_POINTS = double())
   for (i in seq_along(days)){
