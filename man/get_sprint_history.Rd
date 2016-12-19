@@ -9,13 +9,15 @@ get_sprint_history(iteration_id, sprint_start_date, sprint_end_date)
 \arguments{
 \item{iteration_id}{An iteration ID. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.}
 
-\item{dates}{A list of \code{date} objects representing the points in time to calculate the backlog size.}
+\item{sprint_start_date}{First day of the sprint.}
+
+\item{sprint_end_date}{Last day of the sprint.}
 }
 \value{
 Dataframe with five columns: \code{COMPLETED_POINTS}, \code{TOTAL_POINTS}, \code{COMPLETED_COUNT}, \code{TOTAL_COUNT} and \code{AS_OF} (indicating the date)
 }
 \description{
-Get the cumulative completed work item points on each day of the current sprint.
+Get the cumulative completed work item points on each day of a sprint.
 }
 \examples{
 iteration_id <- '50'
