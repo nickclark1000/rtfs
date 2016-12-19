@@ -9,7 +9,7 @@
 #' get_test_case_ids()
 #' @export
 get_test_case_ids <- function(date = format(Sys.Date())) {
-  default_area_path <- rtfs::get_default_area_path()
+  default_area_path <- rtfs::get_default_area_path()$content$defaultValue
   # Returns list of work item IDs.
   query <- paste("Select [System.Id] ",
                  "From WorkItems ",
