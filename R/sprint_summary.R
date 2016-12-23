@@ -36,7 +36,7 @@ get_sprint_history <- function(iteration_id, sprint_start_date, sprint_end_date)
                                TOTAL_COUNT = nrow(work_item_df),
                                AS_OF = weekdays[i])
     }
-    sprint_history <- bind_rows(sprint_history, done_as_of)
+    sprint_history <- dplyr::bind_rows(sprint_history, done_as_of)
   }
   return(sprint_history)
 }
