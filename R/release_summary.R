@@ -205,11 +205,16 @@ get_backlog_history <- function(iteration_ids, dates) {
 #' @export
 get_planned_velocity <- function(iteration_id, date_time) {
   work_item_ids <- get_release_wi_ids(iteration_id, date_time)$content
-  if(length(work_item_ids$content$workItems)==0) {
+  if(length(work_item_ids$workItems)==0) {
     #Try 24hrs later
-    work_item_ids <- get_release_wi_ids(iteration_id, date_time+86400)$content
+    work_item_ids <- get_release_wi_ids(iteration_id, lubridate::ymd_hms(date_time) + 86400)$content
   }
-  cat("Work Item count:", length(work_item_ids))
+  cat("Work Item count:", length(work_item_ids$workItems), "\n")
+  if(length(work_item_ids$workItems) == 0){
+    planned_velocity <- data.frame(PLANNED_VELOCITY = 0,
+                                   SPRINT_ITERATION_ID = iteration_id)
+    return(planned_velocity)
+  }
   work_item_df <- get_release_wis(work_item_ids$workItems$id, date_time)
   planned_velocity <- data.frame(PLANNED_VELOCITY = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
                                  SPRINT_ITERATION_ID = iteration_id)
