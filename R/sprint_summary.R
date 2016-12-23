@@ -21,13 +21,21 @@ get_sprint_history <- function(iteration_id, sprint_start_date, sprint_end_date)
   for (i in seq_along(weekdays)){
     #add 1 day for midnight calculation
     work_item_ids <- get_release_wi_ids(iteration_id, weekdays[i]+1)$content
-    work_item_df <- get_release_wis(work_item_ids$workItems$id, weekdays[i]+1)
-    done <- subset(work_item_df, System.State == 'Done' | System.State == 'Closed')
-    done_as_of <- data.frame(COMPLETED_POINTS = sum(done$Microsoft.VSTS.Scheduling.Effort, na.rm = T),
-                             TOTAL_POINTS = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = T),
-                             COMPLETED_COUNT = nrow(done),
-                             TOTAL_COUNT = nrow(work_item_df),
-                             AS_OF = weekdays[i])
+    if(length(work_item_ids$workItems) == 0){
+      done_as_of <- data.frame(COMPLETED_POINTS = 0,
+                               TOTAL_POINTS = 0,
+                               COMPLETED_COUNT = 0,
+                               TOTAL_COUNT = 0,
+                               AS_OF = weekdays[i])
+    } else {
+      work_item_df <- get_release_wis(work_item_ids$workItems$id, weekdays[i]+1)
+      done <- subset(work_item_df, System.State == 'Done' | System.State == 'Closed')
+      done_as_of <- data.frame(COMPLETED_POINTS = sum(done$Microsoft.VSTS.Scheduling.Effort, na.rm = T),
+                               TOTAL_POINTS = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = T),
+                               COMPLETED_COUNT = nrow(done),
+                               TOTAL_COUNT = nrow(work_item_df),
+                               AS_OF = weekdays[i])
+    }
     sprint_history <- bind_rows(sprint_history, done_as_of)
   }
   return(sprint_history)
