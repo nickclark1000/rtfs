@@ -209,6 +209,7 @@ get_planned_velocity <- function(iteration_id, date_time) {
     #Try 24hrs later
     work_item_ids <- get_release_wi_ids(iteration_id, date_time+86400)$content
   }
+  cat("Work Item count:", length(work_item_ids))
   work_item_df <- get_release_wis(work_item_ids$workItems$id, date_time)
   planned_velocity <- data.frame(PLANNED_VELOCITY = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
                                  SPRINT_ITERATION_ID = iteration_id)
