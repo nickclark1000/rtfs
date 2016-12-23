@@ -135,10 +135,11 @@ get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
 #' @export
 get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
     remainder <- wi_id_list
-
+    cat("Remainder length:", length(remainder))
     while (length(remainder) > 0) {
         first_200 <- head(remainder, 200)
         remainder <- remainder[-c(1:200)]
+        cat("Remainder lengthh:", length(remainder))
 
         id_list <- paste(as.character(first_200), collapse = ",")
         return_fields <- paste("System.Id",
@@ -160,7 +161,6 @@ get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
         } else {
             work_items <- full_join(work_items, api_get(url)$content$value$fields)
         }
-
     }
     return(work_items)
 }
