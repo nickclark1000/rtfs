@@ -105,13 +105,22 @@ get_release_sprints <- function(release_name) {
 #' get_release_wi_ids(iteration_ids)
 #' @export
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
-    default_area_path <- rtfs::get_default_area_path()$content$defaultValue
-    # Returns list of work item IDs.
+    team_area_paths <- rtfs::get_team_area_paths()
+    area_path_string <- ''
+    for(i in 1:length(team_area_paths)){
+      if(i==1){
+        area_path <- paste("[System.AreaPath] under '", team_area_paths[1], "'", sep = "")
+      } else {
+        area_path <- paste("OR [System.AreaPath] under '", team_area_paths[i], "'", sep = "")
+      }
+      area_path_string <- paste(area_path_string, area_path)
+    }
+    ##Returns list of work item IDs.
     query <- paste("Select [System.Id] ",
                    "From WorkItems ",
                    "Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order') ",
                       "AND [System.IterationId] in (", iteration_ids, ") ",
-                      "AND [System.AreaPath] under '", default_area_path, "' ",
+                      "AND (", area_path_string, ") ",
                       "AND [System.State] <> 'Removed' ",
                       "ASOF '", date, "'",
                    sep = "")
@@ -219,4 +228,39 @@ get_planned_velocity <- function(iteration_id, date_time) {
   planned_velocity <- data.frame(PLANNED_VELOCITY = sum(work_item_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE),
                                  SPRINT_ITERATION_ID = iteration_id)
   return(planned_velocity)
+}
+
+#' Get Release Feature IDs
+#'
+#' Get completion percentages for each feature marked with a particular iteration path / release.
+#' Percentage is based on sum of child work items completed effort divided by total effort.
+#'
+#' @return Dataframe with 3 columns: \code{ID}, \code{FEATURE TITLE} and \code{PERCENT COMPLETE}
+#' @export
+get_release_feature_ids <- function(iteration_id) {
+  # Returns list of work item IDs.
+  query <- paste("Select [System.Id] ",
+                 "From WorkItems ",
+                 "Where [System.WorkItemType] = 'Feature' ",
+                 "AND [System.IterationId] = '", iteration_id, "' ",
+                 "AND [System.State] <> 'Removed' ",
+                 sep = "")
+  cat("Request Query:", query, "\n")
+  url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/wiql?api-version=1.0", sep = "")
+  features <- api_post(url, query)
+  return(features)
+}
+
+get_feature_completion <- function(feature_id) {
+  # Returns list of work item IDs.
+  query <- paste("Select [System.Id] ",
+                 "From WorkItems ",
+                 "Where [System.WorkItemType] = 'Feature' ",
+                 "AND [System.IterationId] = '", iteration_id, "' ",
+                 "AND [System.State] <> 'Removed' ",
+                 sep = "")
+  cat("Request Query:", query, "\n")
+  url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/wiql?api-version=1.0", sep = "")
+  features <- api_post(url, query)
+  return(features)
 }
