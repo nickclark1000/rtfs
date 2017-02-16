@@ -47,3 +47,18 @@ get_default_area_path <- function() {
     default_area_path <- api_get(url)
     return(default_area_path)
 }
+
+#' Get Team Area Path(s)
+#'
+#' Get TFS Team's assigned area path(s), including the default area path.
+#'
+#' @return List of team area paths
+#' @examples
+#' get_team_area_paths()
+#' @export
+get_team_area_paths <- function() {
+  url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/", URLencode(tfs_team), "/_apis/Work/TeamSettings/TeamFieldValues",
+               sep = "")
+  area_paths <- api_get(url)$content$values$value
+  return(area_paths)
+}
