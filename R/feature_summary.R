@@ -36,23 +36,37 @@ get_feature_children <- function(feature_id) {
   url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/_apis/wit/wiql?api-version=1.0", sep = "")
   features <- api_post(url, query)
   ###drop the first result, as that is the feature id for some reason
-  children <- features$content$workItemRelations$target$id[-1]
+  children <- features$content$workItemRelations$target$id
   children_list <- paste(as.character(children), collapse=",")
   return(children_list)
 }
 
 get_feature_completion <- function(feature_id) {
-  children_list <- get_feature_children(feature_id)
-  children_df <- get_release_wis(children_list)
+  link_list <- get_feature_children(feature_id)
+  link_df <- get_release_wis(link_list)
+  feature_df <- subset(link_df, System.WorkItemType == 'Feature')
+  children_df <- subset(link_df, System.WorkItemType != 'Feature')
   completed <- sum(subset(children_df, System.State == 'Done')$Microsoft.VSTS.Scheduling.Effort)
   total <- sum(children_df$Microsoft.VSTS.Scheduling.Effort, na.rm = TRUE)
   percent_complete <- round(completed/total*100)
-  return(percent_complete)
+  feature <- data.frame(ID = feature_df$System.Id,
+                        TITLE = feature_df$System.Title,
+                        PERCENT_COMPLETE = percent_complete,
+                        TOTAL_POINTS = total,
+                        COMPLETED_POINTS = completed)
+  return(feature)
 }
 
 get_release_feature_completion <- function(release_iteration_id) {
   feature_ids <- get_release_feature_ids(release_iteration_id)
-  get_feature_completion(feature_ids[1])
-
+  features <- data.frame(ID = double(),
+                        TITLE = character(),
+                        PERCENT_COMPLETE = double(),
+                        TOTAL_POINTS = double(),
+                        COMPLETED_POINTS = double())
+  for(i in 1:length(feature_ids)){
+    feature <- get_feature_completion(feature_ids[i])
+    features <- bind_rows(features, feature)
+  }
+  return(features)
 }
-
