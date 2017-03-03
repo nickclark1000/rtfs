@@ -62,3 +62,18 @@ get_team_area_paths <- function() {
   area_paths <- api_get(url)$content$values$value
   return(area_paths)
 }
+
+get_team_area_paths_string <- function() {
+  team_area_paths <- rtfs::get_team_area_paths()
+    area_path_string <- ''
+    for(i in 1:length(team_area_paths)){
+      if(i==1){
+        ###This could be problematic if the top-most area path is selected for the team in a multi-team project
+        area_path <- paste("[System.AreaPath] under '", team_area_paths[1], "'", sep = "")
+      } else {
+        area_path <- paste("OR [System.AreaPath] under '", team_area_paths[i], "'", sep = "")
+      }
+      area_path_string <- paste(area_path_string, area_path)
+    }
+    return(area_path_string)
+}
