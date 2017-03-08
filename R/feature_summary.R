@@ -84,5 +84,13 @@ get_release_feature_completion <- function(release_iteration_id, dates) {
       }
     }
   }
+  latest_titles <- subset(features, AS_OF == max(AS_OF))[1:2]
+  for(i in 1:nrow(latest_titles)) {
+    for(j in 1:nrow(features)) {
+      if(latest_titles$ID[i] == features$ID[j]) {
+         features$TITLE[j] <- latest_titles$TITLE[i]
+      }
+    }
+  }
   return(features)
 }
