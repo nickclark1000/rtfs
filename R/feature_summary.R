@@ -1,13 +1,4 @@
-
-#' Get Release Feature IDs
-#'
-#' Get completion percentages for each feature marked with a particular iteration path / release.
-#' Percentage is based on sum of child work items completed effort divided by total effort.
-#'
-#' @return Dataframe with 3 columns: \code{ID}, \code{FEATURE TITLE} and \code{PERCENT COMPLETE}
-#' @export
 get_release_feature_ids <- function(iteration_id) {
-  # Returns list of work item IDs.
   area_path_string <- get_team_area_paths_string()
   query <- paste("Select [System.Id] ",
                  "From WorkItems ",
@@ -57,6 +48,13 @@ get_feature_completion <- function(feature_id) {
   return(feature)
 }
 
+#' Get Release Feature Completion
+#'
+#' Get completion percentages for each feature marked with a particular iteration path / release.
+#' Percentage is based on sum of child work items completed effort divided by total effort.
+#'
+#' @return Dataframe with 3 columns: \code{ID}, \code{TITLE}, \code{PERCENT_COMPLETE}, \code{TOTAL_POINTS} and \code{COMPLETED_POINTS}
+#' @export
 get_release_feature_completion <- function(release_iteration_id) {
   feature_ids <- get_release_feature_ids(release_iteration_id)
   features <- data.frame(ID = double(),
