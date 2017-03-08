@@ -75,9 +75,9 @@ get_release_feature_completion <- function(release_iteration_id, dates) {
                         TOTAL_POINTS = double(),
                         COMPLETED_POINTS = double(),
                         AS_OF = character())
-  for(j in 1:length(dates)){
-    feature_ids <- get_release_feature_ids(release_iteration_id, area_path_string, dates[j])
-    if(!is.null(feature_ids)){
+  feature_ids <- get_release_feature_ids(release_iteration_id, area_path_string)
+  if(!is.null(feature_ids)){
+    for(j in 1:length(dates)){
       for(i in 1:length(feature_ids)){
         feature <- get_feature_completion(feature_ids[i], dates[j])
         features <- bind_rows(features, feature)
