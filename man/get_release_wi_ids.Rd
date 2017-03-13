@@ -20,7 +20,6 @@ whose iteration path is under \code{iteration_ids} as of this date. Defaults to 
 \description{
 Get a list of work item IDs for a particular release. Currently retrieves work items where:
 \itemize{
-   \item Area path is under the team's default area path
    \item Work Item Type is Product Backlog Item, Bug or Work Order
    \item State is not equal to Removed or Closed
 }

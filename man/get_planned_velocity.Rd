@@ -15,7 +15,7 @@ get_planned_velocity(iteration_id, date_time)
 Dataframe with two columns: \code{PLANNED_VELOCITY} and \code{SPRINT_ITERATION_ID}
 }
 \description{
-Get planned velocity for each sprint. Only considers work items under the team's default area path.
+Get planned velocity for each sprint.
 }
 \examples{
 iteration_id <- '50'

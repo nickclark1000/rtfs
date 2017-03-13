@@ -1,5 +1,5 @@
 get_collections <- function() {
-
+#http://elite-tfsapp.elitecorp.com:8080/tfs/_apis/projectcollections/
 }
 
 #' Get TFS Projects
@@ -33,47 +33,52 @@ get_teams <- function(tfs_collection, tfs_project) {
     return(teams)
 }
 
-#' Get Default Area Path
+#' Get Team Backlog Filter
 #'
-#' Get TFS Team's default area path.
+#' Gets a TFS Team's backlog filter type (TR.Elite.Team or System.AreaPath) and values.
 #'
-#' @return Default area path string
+#' @return Response from call to TFS TeamFieldValues.
 #' @examples
-#' get_default_area_path()
+#' get_team_backlog_filter()
 #' @export
-get_default_area_path <- function() {
-    url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/", URLencode(tfs_team), "/_apis/Work/TeamSettings/TeamFieldValues",
-        sep = "")
-    default_area_path <- api_get(url)
-    return(default_area_path)
-}
-
-#' Get Team Area Path(s)
-#'
-#' Get TFS Team's assigned area path(s), including the default area path.
-#'
-#' @return List of team area paths
-#' @examples
-#' get_team_area_paths()
-#' @export
-get_team_area_paths <- function() {
+get_team_backlog_filter <- function() {
   url <- paste("/tfs/", URLencode(tfs_collection), "/", URLencode(tfs_project), "/", URLencode(tfs_team), "/_apis/Work/TeamSettings/TeamFieldValues",
                sep = "")
-  area_paths <- api_get(url)$content$values$value
-  return(area_paths)
+  response <- api_get(url)$content
+  return(response)
 }
 
-get_team_area_paths_string <- function() {
-  team_area_paths <- rtfs::get_team_area_paths()
-    area_path_string <- ''
-    for(i in 1:length(team_area_paths)){
+#' Get Team Backlog Filter WIQL
+#'
+#' Gets the WIQL of the team's backlog filter.
+#'
+#' @return WIQL string to be included in WIQL calls to REST API.
+#' @examples
+#' get_team_backlog_filter_wiql()
+#' @export
+get_team_backlog_filter_wiql <- function() {
+  query_string <- ''
+  backlog_filter <- rtfs::get_team_backlog_filter()
+  filter_values <- backlog_filter$values$value
+  if(backlog_filter$field$referenceName == 'TR.Elite.Team'){
+    for(i in 1:length(filter_values)){
+      if(i==1){
+        team_field <- paste("[TR.Elite.Team] = '", filter_values[1], "'", sep = "")
+      } else {
+        team_field <- paste("OR [TR.Elite.Team] = '", filter_values[i], "'", sep = "")
+      }
+      query_string <- paste(query_string, team_field)
+    }
+  } else {
+    for(i in 1:length(filter_values)){
       if(i==1){
         ###This could be problematic if the top-most area path is selected for the team in a multi-team project
-        area_path <- paste("[System.AreaPath] under '", team_area_paths[1], "'", sep = "")
+        area_path <- paste("[System.AreaPath] under '", filter_values[1], "'", sep = "")
       } else {
-        area_path <- paste("OR [System.AreaPath] under '", team_area_paths[i], "'", sep = "")
+        area_path <- paste("OR [System.AreaPath] under '", filter_values[i], "'", sep = "")
       }
-      area_path_string <- paste(area_path_string, area_path)
+      query_string <- paste(query_string, area_path)
     }
-    return(area_path_string)
+  }
+  return(query_string)
 }

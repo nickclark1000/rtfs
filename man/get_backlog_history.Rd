@@ -15,7 +15,7 @@ get_backlog_history(iteration_ids, dates)
 Dataframe with three columns: \code{TOTAL_RELEASE_POINTS}, \code{TOTAL_RELEASE_COUNT} and \code{AS_OF} (indicating the date)
 }
 \description{
-Get the total backlog size at different points in time. Only considers work items under the team's default area path.
+Get the total backlog size at different points in time.
 }
 \examples{
 iteration_ids <- '50, 51, 52'

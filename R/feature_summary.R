@@ -1,9 +1,9 @@
-get_release_feature_ids <- function(iteration_id, area_path_string, date = format(Sys.Date())) {
+get_release_feature_ids <- function(iteration_id, backlog_filter_string, date = format(Sys.Date())) {
   query <- paste("Select [System.Id] ",
                  "From WorkItems ",
                  "Where [System.WorkItemType] = 'Feature' ",
                  "AND [System.IterationId] = '", iteration_id, "' ",
-                 "AND (", area_path_string, ") ",
+                 "AND (", backlog_filter_string, ") ",
                  "AND [System.State] <> 'Removed' ",
                  "ASOF '", date, "'",
                  sep = "")
@@ -68,14 +68,14 @@ get_feature_completion <- function(feature_id, date) {
 #' @return Dataframe with 6 columns: \code{ID}, \code{TITLE}, \code{PERCENT_COMPLETE}, \code{TOTAL_POINTS}, \code{COMPLETED_POINTS} and \code{AS_OF}
 #' @export
 get_release_feature_completion <- function(release_iteration_id, dates) {
-  area_path_string <- get_team_area_paths_string()
+  backlog_filter_string <- rtfs::get_team_backlog_filter_wiql()
   features <- data.frame(ID = double(),
                         TITLE = character(),
                         PERCENT_COMPLETE = double(),
                         TOTAL_POINTS = double(),
                         COMPLETED_POINTS = double(),
                         AS_OF = character())
-  feature_ids <- get_release_feature_ids(release_iteration_id, area_path_string)
+  feature_ids <- get_release_feature_ids(release_iteration_id, backlog_filter_string)
   if(!is.null(feature_ids)){
     for(j in 1:length(dates)){
       for(i in 1:length(feature_ids)){

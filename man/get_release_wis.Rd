@@ -16,7 +16,7 @@ as of this date. Defaults to today's date.}
 \code{api_post} class of work items
 }
 \description{
-Get a list of work items for a particular release. Currently uses the team's default area path.
+Get a list of work items for a particular team's release.
 }
 \examples{
 wi_id_list <- '50000, 51000, 52000'

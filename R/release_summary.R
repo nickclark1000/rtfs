@@ -90,7 +90,6 @@ get_release_sprints <- function(release_name) {
 #'
 #' Get a list of work item IDs for a particular release. Currently retrieves work items where:
 #' \itemize{
-#'    \item Area path is under the team's default area path
 #'    \item Work Item Type is Product Backlog Item, Bug or Work Order
 #'    \item State is not equal to Removed or Closed
 #' }
@@ -105,23 +104,12 @@ get_release_sprints <- function(release_name) {
 #' get_release_wi_ids(iteration_ids)
 #' @export
 get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
-    team_area_paths <- rtfs::get_team_area_paths()
-    area_path_string <- ''
-    for(i in 1:length(team_area_paths)){
-      if(i==1){
-        ###This could be problematic if the top-most area path is selected for the team in a multi-team project
-        area_path <- paste("[System.AreaPath] under '", team_area_paths[1], "'", sep = "")
-      } else {
-        area_path <- paste("OR [System.AreaPath] under '", team_area_paths[i], "'", sep = "")
-      }
-      area_path_string <- paste(area_path_string, area_path)
-    }
-    ##Returns list of work item IDs.
+    backlog_filter_string <- rtfs::get_team_backlog_filter_wiql()
     query <- paste("Select [System.Id] ",
                    "From WorkItems ",
                    "Where [System.WorkItemType] in ('Product Backlog Item', 'Bug', 'Work Order') ",
                       "AND [System.IterationId] in (", iteration_ids, ") ",
-                      "AND (", area_path_string, ") ",
+                      "AND (", backlog_filter_string, ") ",
                       "AND [System.State] <> 'Removed' ",
                       "ASOF '", date, "'",
                    sep = "")
@@ -133,7 +121,7 @@ get_release_wi_ids <- function(iteration_ids, date = format(Sys.Date())) {
 
 #' Get Release Work Items
 #'
-#' Get a list of work items for a particular release. Currently uses the team's default area path.
+#' Get a list of work items for a particular team's release.
 #'
 #' @param wi_id_list A comma-separated list of work item IDs. Use \code{\link{get_release_wi_ids}} to acquire a list of work items.
 #' @param date The TFS API has the ability to fetch data as of a certain date. Passing a date object will return a list of work items
@@ -177,7 +165,7 @@ get_release_wis <- function(wi_id_list, date = format(Sys.Date())) {
 
 #' Get Historical Backlog Size
 #'
-#' Get the total backlog size at different points in time. Only considers work items under the team's default area path.
+#' Get the total backlog size at different points in time.
 #'
 #' @param iteration_ids A comma-separated list of iteration IDs. Use \code{\link{get_iteration_tree}} to acquire a list of iterations.
 #' @param dates A list of \code{date} objects representing the points in time to calculate the backlog size.
@@ -203,7 +191,7 @@ get_backlog_history <- function(iteration_ids, dates) {
 
 #' Get Planned Velocity
 #'
-#' Get planned velocity for each sprint. Only considers work items under the team's default area path.
+#' Get planned velocity for each sprint.
 #'
 #' @param iteration_id The iteration ID of the sprint whose planned velocity is desired.
 #' @param date_time The date and time to calculate the planned velocity.
