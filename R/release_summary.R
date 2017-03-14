@@ -180,7 +180,7 @@ get_backlog_history <- function(iteration_ids, dates) {
     backlog_history <- data.frame(TOTAL_RELEASE_POINTS = double(), AS_OF = character())
     for (i in 1:length(dates)) {
         work_item_ids <- get_release_wi_ids(iteration_ids, dates[i])$content
-        if(length(work_item_ids) == 0){
+        if(length(work_item_ids$workItems) == 0){
           backlog_as_of <- data.frame(TOTAL_RELEASE_POINTS = 0,
                                       TOTAL_RELEASE_COUNT = 0,
                                       AS_OF = dates[i])
