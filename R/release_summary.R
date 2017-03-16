@@ -16,12 +16,13 @@ get_iteration_tree <- function() {
 #'
 #' Computes the current release based on today's date.
 #'
-#' @return A list of current major (e.g., 3.0) and minor (e.g., 3.1) releases.
+#' @return A list of current major (e.g., 3.0.0) and minor (e.g., 3.0.1) releases.
 #' Current minor release will be \code{NULL} if there are no minor releases defined.
 #' @export
 get_current_release <- function() {
     releases <- get_iteration_tree()$content
     today <- format(Sys.Date())
+    current_minor_release <- NULL
 
     for (i in 1:nrow(releases$children)) {
         child <- releases$children[i, ]
@@ -60,7 +61,7 @@ get_current_release <- function() {
         }
     } else {
         cat("No minor releases to define \n")
-        current_minor_release <- NULL
+
     }
     return(list(current_minor_release = current_minor_release, current_major_release = current_major_release))
 }
