@@ -9,23 +9,11 @@
 #' get_test_case_ids()
 #' @export
 get_test_case_ids <- function(date = format(Sys.Date())) {
-  ##default_area_path <- rtfs::get_default_area_path()$content$defaultValue
-  team_area_paths <- rtfs::get_team_area_paths()
-  area_path_string <- ''
-  for(i in 1:length(team_area_paths)){
-    if(i==1){
-      ###This could be problematic if the top-most area path is selected for the team in a multi-team project
-      area_path <- paste("[System.AreaPath] under '", team_area_paths[1], "'", sep = "")
-    } else {
-      area_path <- paste("OR [System.AreaPath] under '", team_area_paths[i], "'", sep = "")
-    }
-    area_path_string <- paste(area_path_string, area_path)
-  }
-  # Returns list of work item IDs.
+  backlog_filter_string <- rtfs::get_team_backlog_filter_wiql()
   query <- paste("Select [System.Id] ",
                  "From WorkItems ",
                  "Where [System.WorkItemType] = 'Test Case' ",
-                 "AND (", area_path_string, ") ",
+                 "AND (", backlog_filter_string, ") ",
                  "AND [System.State] <> 'Closed' ",
                  "ASOF '", date, "'",
                  sep = "")
